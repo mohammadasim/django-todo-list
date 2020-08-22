@@ -5,5 +5,4 @@ from django.views.generic import TemplateView
 
 class HomePageView(TemplateView):
 
-    def get(self, request, *args, **kwargs):
-        return HttpResponse('<html><title>To-Do lists</title></html>')
+    template_name = 'home.html'
