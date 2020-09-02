@@ -5,8 +5,8 @@
     <title>To-Do lists</title>
 </head>
 <body>
-<h1> Your To-Do list </h1>
-<form action="/" method="post">
+<h1> Start a new To-Do list </h1>
+<form action="/lists/new" method="post">
     <input id="id_new_item" name="item_text" placeholder="Enter a to-do item">
     {% csrf_token %}
     <button type="submit">Add To Do</button>

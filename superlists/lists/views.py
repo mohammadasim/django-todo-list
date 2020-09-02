@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .models import Item
+from .models import Item, List
 
 
 def home_page(request):
@@ -9,20 +9,41 @@ def home_page(request):
     :param request:
     :return:
     """
-    if request.method == 'POST':
-        new_item_text = request.POST.get('item_text')
-        Item.objects.create(text=new_item_text)
-        return redirect('/lists/the-only-list-in-the-world/')
     return render(request, 'home.html')
 
 
-def view_list(request):
+def view_list(request, list_id):
     """
     Function based view for
     individual lists
+    :param list_id:
     :param request:
     :return:
     """
-    items = Item.objects.all()
+    list_ = List.objects.get(id=list_id)
+    items = Item.objects.filter(list=list_)
+    context = {
+        'items': items,
+        'list': list_
+    }
     return render(request, 'list.html',
-                  {'items': items})
+                  context)
+
+
+def new_list(request):
+    list_ = List.objects.create()
+    Item.objects.create(text=request.POST['item_text'], list=list_)
+    return redirect(f'/lists/{list_.id}/')
+
+
+def add_item(request, list_id):
+    """
+    View function to add item to existing
+    list
+    :param request:
+    :param list_id:
+    :return:
+    """
+    existing_list = List.objects.get(id=list_id)
+    Item.objects.create(text=request.POST['item_text'], list=existing_list)
+    return redirect(f'/lists/{existing_list.id}/')
