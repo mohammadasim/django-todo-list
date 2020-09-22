@@ -12,6 +12,5 @@ DATABASES = {
         'PASSWORD': get_env_variable('PGSQL_DB_PASW'),
         'HOST': get_env_variable('PGSQL_DB_HOST'),
         'PORT': get_env_variable('PGSQL_DB_PORT'),
-        #'OPTIONS': {'sslmode': 'verify-full'},
     }
 }
