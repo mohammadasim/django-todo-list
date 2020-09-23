@@ -1,16 +1,21 @@
 import time
+import os
 
-from django.test import LiveServerTestCase
+
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import WebDriverException
 
 
-class NewVisitorTest(LiveServerTestCase):
+class NewVisitorTest(StaticLiveServerTestCase):
     """
     Test class containing test for
     new user functionality
+    We have replaced LiverServerTestCase
+    with StaticLiveServerTestCase so static
+    files are loaded.
     """
     # The maximum amount of time we are prepared to wait
     Max_Wait = 10
@@ -21,6 +26,9 @@ class NewVisitorTest(LiveServerTestCase):
         :return:
         """
         self.browser = webdriver.Chrome()
+        staging_server = os.environ.get('STAGING_SERVER')
+        if staging_server:
+            self.live_server_url = 'http://' + staging_server
 
     def tearDown(self) -> None:
         """
@@ -136,7 +144,19 @@ class NewVisitorTest(LiveServerTestCase):
         # She notices that the input box is nicely centered
         inputbox = self.browser.find_element_by_id('id_new_item')
         self.assertAlmostEquals(
-            inputbox.location['x'] + inputbox.size['width'] / 2,
+            inputbox.location['x'] + inputbox.size['width']/2,
+            512,
+            delta=10
+        )
+
+        # She starts a new list and sees the imput is nicely
+        # centered there too
+        inputbox.send_keys('testing')
+        inputbox.send_keys(Keys.ENTER)
+        self.wait_for_row_in_list_table('1: testing')
+        inputbox = self.browser.find_element_by_id('id_new_item')
+        self.assertAlmostEquals(
+            inputbox.location['x'] + inputbox.size['width']/2,
             512,
             delta=10
         )
