@@ -41,6 +41,15 @@ class FunctionalTest(StaticLiveServerTestCase):
         """
         Method to wait and check for items in a
         table row
+        We have set a constant for max time.
+        We then have an infinite loop with three
+        ways to exit
+        Either the elements are found, the assertion
+        passes and we exit.
+        Or we raise exception check that we haven't
+        hit our time limit, if not we wait again by
+        calling the sleep.
+        If we hit our time limit we then raise an exception.
         :param row_text:
         :return:
         """
@@ -51,6 +60,28 @@ class FunctionalTest(StaticLiveServerTestCase):
                 rows = table.find_elements_by_tag_name('tr')
                 self.assertIn(row_text, [row.text for row in rows])
                 return
+            except (AssertionError, WebDriverException) as e:
+                if time.time() - start_time > self.Max_Wait:
+                    raise e
+                time.sleep(0.5)
+
+    def wait_for(self, fn):
+        """
+        Method to cause explicit wait.
+        This method will be used to
+        wait for page refresh in other
+        test classes and methods.
+        The method takes a function and
+        we return the return value of the
+        function.
+        as an argument
+        :param fn:
+        :return:
+        """
+        start_time = time.time()
+        while True:
+            try:
+                return fn()
             except (AssertionError, WebDriverException) as e:
                 if time.time() - start_time > self.Max_Wait:
                     raise e
