@@ -24,13 +24,17 @@ def view_list(request, list_id):
     :return:
     """
     list_ = List.objects.get(id=list_id)
-    items = Item.objects.filter(list=list_)
-    context = {
-        'items': items,
-        'list': list_
-    }
-    return render(request, 'list.html',
-                  context)
+    if request.method == 'POST':
+        item = Item(text=request.POST['item_text'], list=list_)
+        item.save()
+        return redirect('view_list', list_.id)
+    if request.method == 'GET':
+        items = Item.objects.filter(list=list_)
+        context = {
+            'items': items,
+            'list': list_
+        }
+    return render(request, 'list.html', context)
 
 
 def new_list(request):
@@ -44,16 +48,3 @@ def new_list(request):
         error = escape('You cannot have an empty list item')
         return render(request, 'home.html', {'error': error})
     return redirect(f'/lists/{list_.id}/')
-
-
-def add_item(request, list_id):
-    """
-    View function to add item to existing
-    list
-    :param request:
-    :param list_id:
-    :return:
-    """
-    existing_list = List.objects.get(id=list_id)
-    Item.objects.create(text=request.POST['item_text'], list=existing_list)
-    return redirect(f'/lists/{existing_list.id}/')
