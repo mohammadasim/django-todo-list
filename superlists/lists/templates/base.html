@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 {% load static %}
+{% load crispy_forms_tags %}
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
@@ -16,12 +17,11 @@
              <div class="text-center">
                 <h1>{% block header_text %} {% endblock header_text %}</h1>
                     <form method="post" action="{% block form_action %}{% endblock form_action %}">
-                        <input id="id_new_item" name="item_text" placeholder="Enter a to-do item"
-                            class="form-control input-lg">
-                            {% csrf_token %}
-                            {% if error %}
+                        {{ form|crispy }}
+                        {% csrf_token %}
+                            {% if form.errors %}
                             <div class="form-group has-error">
-                                <span class="help-block">{{ error }}</span>
+                                <div class="help-block">{{ form.text.error }}</div>
                             </div>
                             {% endif %}
                             <button type="submit">Add To Do</button>
