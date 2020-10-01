@@ -19,3 +19,10 @@ class Item(models.Model):
     """
     text = models.TextField('To-do list item')
     list = models.ForeignKey(List, on_delete=models.SET_DEFAULT, default=None)
+
+    def __str__(self):
+        return self.text
+
+    class Meta:
+        ordering = ('id',)
+        unique_together = ('list', 'text')

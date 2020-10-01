@@ -9,6 +9,15 @@ class ItemForm(forms.models.ModelForm):
     """
     Form class for Items
     """
+    def save(self, for_list):
+        """
+        overriding the save method.
+        .instance attribute on a form
+        represents the database object
+        that is being modified or created.
+        """
+        self.instance.list = for_list
+        return super().save()
 
     class Meta:
         model = Item
