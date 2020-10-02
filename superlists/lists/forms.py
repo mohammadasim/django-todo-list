@@ -70,3 +70,19 @@ class ExistingListItemForm(ItemForm):
             # the form
             e.error_dict = {'text': [DUPLICATE_ITEM_ERROR]}
             self._update_errors(e)
+
+    def save(self):
+        """
+        The super class of ItemForm
+        requires a positional argument for_list
+        in the save method. But for an existing an
+        instance of this form class already has a list
+        when it is being created. So what we really want
+        is to save the item because it has text and has
+        the list item. Hence we call the grandfather save
+        method
+        """
+        return forms.models.ModelForm.save(self)
+
+    class Meta(ItemForm.Meta):
+        pass
