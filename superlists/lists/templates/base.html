@@ -19,12 +19,7 @@
                     <form method="post" action="{% block form_action %}{% endblock form_action %}">
                         {{ form|crispy }}
                         {% csrf_token %}
-                            {% if form.errors %}
-                            <div class="form-group has-error">
-                                <div class="help-block">{{ form.text.errors }}</div>
-                            </div>
-                            {% endif %}
-                            <button type="submit">Add To Do</button>
+                            <button type="submit" class="btn btn-primary btn-lg btn-block" disabled>Add To Do</button>
                     </form>
              </div>
         </div>
@@ -37,6 +32,8 @@
     </div>
 </div>
 </body>
-<script src="http://code.jquery.com/jquery.js"></script>
-<script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+<script src="http://code.jquery.com/jquery.js" type="text/javascript"></script>
+<script src="{% static 'bootstrap/js/bootstrap.min.js' %}" type="text/javascript"></script>
+<script src="{% static 'list.js' %}"></script>
+<script>initialize();</script>
 </html>
