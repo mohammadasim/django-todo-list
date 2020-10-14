@@ -17,7 +17,16 @@ tests will be run in no particular order. Therefore
 we created initialize function that we call after 
 each test to put the DOM in the initial state
 */
-var initialize = function(e){
+/*  
+What if we include some third party javaScript tool later
+that also defines a function initialize. We therefore 
+explicitly declare an object as a property of the window
+global, giving it a name that we think no one else is likely
+to use. Then we make our initialize function an attribute of
+that namespace objects.
+*/
+window.Superlists = {};
+window.Superlists.initialize = function(e){
     console.log('initialize called');
     $("input[name='text']").keypress(function (e){
         $(".help-block").hide();

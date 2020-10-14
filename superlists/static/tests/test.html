@@ -10,26 +10,28 @@
 <div id="qunit"></div>
 <div id="qunit-fixture">
 <form>
-<input name="text"/>
+<input name="text" type="text" placeholder="Type something..">
 <div class="help-block">Error text</div>
+<button type="submit" disabled></button>
+</form>
 </div>
-
-
 <script src="../jquery-3.5.1.min.js"></script>
 <script src="../list.js"></script>
 <script src="qunit-2.11.2.js"></script>
+<script src="https://unpkg.com/qunit-dom/dist/qunit-dom.js"></script>
 <script>
-    console.log('qunit tests start')
     QUnit.test("error should be hidden on keypress", function(assert){
-        console.log('in test 1')
-        initialize();
+        window.Superlists.initialize();
         $('input[name="text"]').trigger('keypress');
         assert.equal($('.help-block').is(':visible'), false)
     });
     QUnit.test("erros aren't hidden if there is no keypress", function(assert){
-        console.log('in test 2')
-        initialize();
+        window.Superlists.initialize();
         assert.equal($('.help-block').is(':visible'), true);
+    });
+    QUnit.test("button is disabled on load", function(assert){
+        var button = ($("button")[4])
+        assert.dom(button).hasAttribute("disabled");
     });
 </script>
 </body>
