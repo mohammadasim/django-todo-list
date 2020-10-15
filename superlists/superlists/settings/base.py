@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     # Third party
     'crispy_forms',
     'lists',
+    'accounts'
 ]
 
 MIDDLEWARE = [
@@ -128,3 +129,4 @@ STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder"
 ]
+AUTH_USER_MODEL = 'accounts.User'
