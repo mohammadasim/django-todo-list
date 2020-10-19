@@ -9,8 +9,10 @@ class User(models.Model):
     USERNAME_FIELD = 'email'
     is_anonymous = False
     is_authenticated = True
+    objects = models.Manager()
 
 
 class Token(models.Model):
+    objects = models.Manager()
     email = models.EmailField()
     uid = models.CharField(max_length=40, default=uuid.uuid4)

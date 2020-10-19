@@ -1,6 +1,6 @@
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
-from django.contrib import messages
+from django.contrib import messages, auth
 from django.urls import reverse
 
 from .models import Token
@@ -12,10 +12,10 @@ def send_login_email(request):
     url = request.build_absolute_uri(
         reverse('login') + '?token=' + str(token.uid)
     )
-    mesage_body = f'Use this link to log in:\n\n{url}'
+    message_body = f'Use this link to log in:\n\n{url}'
     send_mail(
         'Your login link for Superlists',
-        mesage_body,
+        message_body,
         'noreply@superlists',
         [email]
     )
@@ -25,4 +25,8 @@ def send_login_email(request):
 
 
 def login(request):
-    return redirect("/")
+    uid = request.GET['token']
+    user = auth.authenticate(request, uid=uid)
+    if user is not None:
+        auth.login(request, user)
+    return redirect('/')
