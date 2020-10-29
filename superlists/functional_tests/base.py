@@ -61,9 +61,9 @@ class FunctionalTest(StaticLiveServerTestCase):
         :return:
         """
         self.browser = webdriver.Chrome()
-        staging_server = os.environ.get('STAGING_SERVER')
-        if staging_server:
-            self.live_server_url = 'http://' + staging_server
+        self.staging_server = os.environ.get('STAGING_SERVER')
+        if self.staging_server:
+            self.live_server_url = 'http://' + self.staging_server
 
     def tearDown(self) -> None:
         """
@@ -116,3 +116,7 @@ class FunctionalTest(StaticLiveServerTestCase):
         self.wait_for(lambda: self.browser.find_element_by_name('email'))
         navbar = self.browser.find_element_by_css_selector('.navbar')
         self.assertNotIn(email, navbar.text)
+
+    def add_list_item(self, item):
+        self.get_item_input_box().send_keys(item)
+        self.get_item_input_box().send_keys(Keys.ENTER)

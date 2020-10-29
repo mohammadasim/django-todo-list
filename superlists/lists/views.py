@@ -1,9 +1,12 @@
+from django.contrib.auth import get_user_model
 from django.shortcuts import render, redirect
 
 from .forms import (ItemForm, ExistingListItemForm,
-EMPTY_ITEM_ERROR, DUPLICATE_ITEM_ERROR
+                    EMPTY_ITEM_ERROR, DUPLICATE_ITEM_ERROR
                     )
 from .models import Item, List
+
+User = get_user_model()
 
 
 def home_page(request):
@@ -57,3 +60,11 @@ def new_list(request):
     else:
 
         return render(request, 'home.html', {'form': form})
+
+
+def my_lists(request, email):
+    owner = User.objects.get(email=email)
+    context = {
+        'owner': owner
+    }
+    return render(request, 'my_lists.html', context)

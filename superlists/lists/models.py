@@ -1,11 +1,13 @@
 from django.db import models
 from django.urls import reverse
 
-
+User 
 class List(models.Model):
     """
     Model representing a list.
     """
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+
     def get_absolute_url(self):
         return reverse(
             'view_list',
