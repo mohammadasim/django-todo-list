@@ -1,7 +1,10 @@
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.core.exceptions import ValidationError
 
 from lists.models import Item, List
+
+User = get_user_model()
 
 
 class ItemModelTest(TestCase):
@@ -16,7 +19,6 @@ class ItemModelTest(TestCase):
         item.list = list_
         item.save()
         self.assertEqual(item, list_.item_set.all().first())
-
 
     def test_cannot_save_empty_list_items(self):
         list_ = List.objects.create()
@@ -80,3 +82,13 @@ class ListModelTest(TestCase):
         list_ = List.objects.create()
         self.assertEqual(list_.get_absolute_url(), f'/lists/{list_.id}/')
 
+    def test_lists_can_have_owners(self):
+        user = User.objects.create(email='a@b.com')
+        empty_list = List.objects.create(owner=user)
+        self.assertEqual(empty_list, user.list_set.first())
+        
+    def test_list_name_is_first_item(self):
+        list_ = List.objects.create()
+        first_item = Item.objects.create(list=list_, text='first item')
+        second_item = Item.objects.create(list=list_, text='Second item')
+        self.assertEqual(list_.name, first_item.text)

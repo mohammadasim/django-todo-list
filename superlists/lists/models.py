@@ -1,12 +1,18 @@
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.urls import reverse
 
-User 
+
 class List(models.Model):
     """
     Model representing a list.
     """
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    User = get_user_model()
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
+
+    @property
+    def name(self):
+        return self.item_set.first().text
 
     def get_absolute_url(self):
         return reverse(
