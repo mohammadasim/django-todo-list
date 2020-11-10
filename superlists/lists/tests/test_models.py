@@ -1,7 +1,10 @@
 from django.test import TestCase
 from django.core.exceptions import ValidationError
+from django.contrib.auth import get_user_model
 
 from lists.models import Item, List
+
+User = get_user_model()
 
 
 class ItemModelTest(TestCase):
@@ -16,7 +19,6 @@ class ItemModelTest(TestCase):
         item.list = list_
         item.save()
         self.assertEqual(item, list_.item_set.all().first())
-
 
     def test_cannot_save_empty_list_items(self):
         list_ = List.objects.create()
@@ -50,7 +52,7 @@ class ItemModelTest(TestCase):
             item = Item(list=list_, text='bla')
             item.full_clean()
 
-    def test_CAN_save_item_to_different_lists(self):
+    def test_can_save_item_to_different_lists(self):
         list1 = List.objects.create()
         list2 = List.objects.create()
         Item.objects.create(list=list1, text='bla')
@@ -80,3 +82,29 @@ class ListModelTest(TestCase):
         list_ = List.objects.create()
         self.assertEqual(list_.get_absolute_url(), f'/lists/{list_.id}/')
 
+    def test_create_new_creates_list_and_first_item(self):
+        List.create_new(first_item_text='new item text')
+        new_item = Item.objects.first()
+        self.assertEqual(new_item.text, 'new item text')
+        new_list = List.objects.first()
+        self.assertEqual(new_item.list, new_list)
+
+    def test_create_new_optionally_saves_owner(self):
+        user = User.objects.create()
+        List.create_new(first_item_text='new item text', owner=user)
+        new_list = List.objects.first()
+        self.assertEqual(new_list.owner, user)
+
+    # The following are sanity check tests
+    # as List model will have user foreign key
+    # as optional we are ensuring that having
+    # a user and not having a user don't raise
+    # any exceptions.
+
+    def test_lists_can_have_owners(self):
+        List(owner=User()) # should not raise
+
+    def test_list_owner_is_optional(self):
+        List().full_clean() # should not raise
+        # full_clean() runs database level validation
+        # checks on a model object.

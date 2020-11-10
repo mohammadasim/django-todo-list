@@ -1,18 +1,27 @@
+from django.conf import settings
 from django.db import models
 from django.urls import reverse
 
-User 
+
 class List(models.Model):
     """
     Model representing a list.
     """
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.CASCADE)
 
     def get_absolute_url(self):
         return reverse(
             'view_list',
             args=[self.id]
         )
+
+    @classmethod
+    def create_new(cls, *args, **kwargs):
+        if kwargs.get('owner'):
+            list_ = cls.objects.create(owner=kwargs.get('owner'))
+        else:
+            list_ = cls.objects.create()
+        Item.objects.create(text=kwargs.get('first_item_text'), list=list_)
 
 
 class Item(models.Model):
