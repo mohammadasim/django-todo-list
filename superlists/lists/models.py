@@ -15,6 +15,10 @@ class List(models.Model):
             args=[self.id]
         )
 
+    @property
+    def name(self):
+        return self.item_set.first().text
+
     @classmethod
     def create_new(cls, *args, **kwargs):
         if kwargs.get('owner'):
@@ -22,6 +26,7 @@ class List(models.Model):
         else:
             list_ = cls.objects.create()
         Item.objects.create(text=kwargs.get('first_item_text'), list=list_)
+        return list_
 
 
 class Item(models.Model):

@@ -108,3 +108,14 @@ class ListModelTest(TestCase):
         List().full_clean() # should not raise
         # full_clean() runs database level validation
         # checks on a model object.
+
+    def test_create_new_returns_new_list_object(self):
+        returned = List.create_new(first_item_text='new item text')
+        new_list = List.objects.first()
+        self.assertEqual(returned, new_list)
+
+    def test_list_name_is_first_item_text(self):
+        list_ = List.objects.create()
+        Item.objects.create(text='first item', list=list_)
+        Item.objects.create(text='second item', list=list_)
+        self.assertEqual(list_.name, 'first item')
