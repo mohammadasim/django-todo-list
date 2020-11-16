@@ -1,6 +1,9 @@
 pipeline {
     agent any
-
+    environment {
+        DJANGO_SETTINGS_MODULE = 'superlists.settings.test'
+        SECRET_KEY = 'UToroo1cu3jaemi9eewo6shoohohchah4Esa7Ietin1Faishi9'
+    }
     stages {
         stage('Create virtualenv and installing dependencies') {
             steps {
