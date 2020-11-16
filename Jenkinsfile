@@ -11,7 +11,7 @@ pipeline {
                 echo 'Creating Virtualenv..'
                 /usr/local/bin/python3.8 -m venv venv
                 source venv/bin/activate
-                cd superlists && pip install -r requirements.txt
+                cd superlists && pip install -r requirements_test.txt
                 '''
             }
         }
