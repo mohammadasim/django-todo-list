@@ -11,7 +11,7 @@ RUN groupadd -g 1070 stg && useradd -u 1070 -g stg stg
 WORKDIR /code
 
 # Install dependencies
-COPY requirements.txt /code/
+COPY requirements_dev.txt /code/
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy project
