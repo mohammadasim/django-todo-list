@@ -25,11 +25,15 @@ pipeline {
         }
         stage('Functional tests') {
             steps {
-                tool name: ",type:'org.jenkinsci.plugins.xvfb.XvfbInstallation'
+                timeout(45) {
+                    wrap([$class: 'Xvfb', additionalOptions: '', assignedLabels: '', displayName: 99,
+                      displayNameOffset: 0, installationName: 'Xvfb', screen: '']){
                 sh '''#!/bin/bash
                 echo 'Running functional tests'
                 source venv/bin/activate && cd superlists && python manage.py test functional_tests
                 '''
+                    }
+                }
             }
         }
     }
