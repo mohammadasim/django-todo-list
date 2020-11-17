@@ -25,6 +25,7 @@ pipeline {
         }
         stage('Functional tests') {
             steps {
+                tool name: ",type:'org.jenkinsci.plugins.xvfb.XvfbInstallation'
                 sh '''#!/bin/bash
                 echo 'Running functional tests'
                 source venv/bin/activate && cd superlists && python manage.py test functional_tests
