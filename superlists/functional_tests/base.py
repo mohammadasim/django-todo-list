@@ -5,11 +5,18 @@ from unittest import skip
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import WebDriverException
 
 # The maximum amount of time we are prepared to wait
 Max_Wait = 10
+
+# Setup required to run on the jenkins server
+chrome_options = Options()
+chrome_options.add_argument('--no-sandbox')
+chrome_options.add_argument('--headless')
+driver = webdriver.Chrome(chrome_options=chrome_options)
 
 
 def wait(fn):
@@ -60,7 +67,7 @@ class FunctionalTest(StaticLiveServerTestCase):
         Setting up the browser
         :return:
         """
-        self.browser = webdriver.Chrome()
+        self.browser = driver
         self.staging_server = os.environ.get('STAGING_SERVER')
         if self.staging_server:
             self.live_server_url = 'http://' + self.staging_server
