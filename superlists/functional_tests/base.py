@@ -1,6 +1,7 @@
 import time
 import os
-from unittest import skip
+import sys
+from datetime import datetime
 
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 
@@ -17,6 +18,10 @@ chrome_options = Options()
 chrome_options.add_argument('--no-sandbox')
 chrome_options.add_argument('--headless')
 driver = webdriver.Chrome(chrome_options=chrome_options)
+
+SCREEN_DUMP_LOCATION = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), 'screendumps'
+)
 
 
 def wait(fn):
@@ -67,7 +72,12 @@ class FunctionalTest(StaticLiveServerTestCase):
         Setting up the browser
         :return:
         """
-        self.browser = driver
+        # Commented out as required for jenkins test run.
+        # to run jenkins, the app needs to be deployed in
+        # to a staging environment, which is not the case
+        # with this app atm.
+        # self.browser = driver
+        self.browser = webdriver.Chrome()
         self.staging_server = os.environ.get('STAGING_SERVER')
         if self.staging_server:
             self.live_server_url = 'http://' + self.staging_server
@@ -77,7 +87,53 @@ class FunctionalTest(StaticLiveServerTestCase):
         Tearing down the test setup
         :return:
         """
+        for _, err in self._outcome.errors:
+            if err:
+                if not os.path.exists(SCREEN_DUMP_LOCATION):
+                    os.makedirs(SCREEN_DUMP_LOCATION)
+                # We use enumerate to add a counter to the
+                # browser windows.
+                for ix, handle in enumerate(self.browser.window_handles):
+                    # defining a new instance variable
+                    self._windowid = ix
+                    self.browser.switch_to.window(handle)
+                    self.take_screenshot()
+                    self.dump_html()
         self.browser.quit()
+        super().tearDown()
+
+    def take_screenshot(self):
+        """
+        Takes screenshots of the browser
+        when tests fail
+        """
+        filename = self._get_filename() + '.png'
+        print('screenshotting to ', filename)
+        # Must use the full path in the filename
+        # provided as the method argument
+        self.browser.get_screenshot_as_file(filename)
+
+    def dump_html(self):
+        filename = self._get_filename() + '.html'
+        print('dumping paget HTML to ', filename)
+        with open(filename, 'w') as f:
+            f.write(self.browser.page_source)
+
+    def _get_filename(self):
+        """
+        Generates a unique filename, consisting of
+        name of the test, the test class and a timestamp.
+        """
+        # time is set to ISO 8601 format, replacing : with . and
+        # removing microseconds by limiting the length to index 19
+        timestamp = datetime.now().isoformat().replace(':', '.')[:19]
+        return '{folder}/{classname}.{method}-window{windowid}-{timestamp}'.format(
+            folder=SCREEN_DUMP_LOCATION,
+            classname=self.__class__.__name__,
+            method=self._testMethodName,
+            windowid=self._windowid,
+            timestamp=timestamp
+        )
 
     @wait
     def wait_for_row_in_list_table(self, row_text):
