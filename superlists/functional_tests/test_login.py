@@ -1,7 +1,5 @@
 import re
-import os
-import poplib
-import time
+
 from django.core import mail
 
 from selenium.webdriver.common.keys import Keys
