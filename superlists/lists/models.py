@@ -8,6 +8,7 @@ class List(models.Model):
     Model representing a list.
     """
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.CASCADE)
+    shared_with = models.ManyToManyField(to=settings.AUTH_USER_MODEL, related_name='list_shared')
 
     def get_absolute_url(self):
         return reverse(

@@ -12,3 +12,9 @@
 
 </table>
 {% endblock table %}
+{% block share %}
+<form method="post" action="/lists/{{ list.id }}/share">
+    <label>Share this list</label>
+    <input type="email" placeholder="your-friend@example.com" name="sharee">
+</form>
+{% endblock share %}

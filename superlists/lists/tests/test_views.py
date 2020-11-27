@@ -1,15 +1,16 @@
 import unittest
 
 from django.contrib.auth import get_user_model
+from django.forms import forms
 from django.http import HttpRequest
-from django.test import TestCase
+from django.test import TestCase, RequestFactory
 from django.urls import reverse
 from django.utils.html import escape
 from unittest.mock import patch, Mock
 
 from lists.forms import ItemForm, EMPTY_ITEM_ERROR, ExistingListItemForm
 from lists.models import Item, List
-from lists.views import new_list
+from lists.views import new_list, share_list
 
 User = get_user_model()
 
@@ -264,3 +265,35 @@ class MyListTest(TestCase):
         correct_user = User.objects.create(email='a@b.com')
         response = self.client.get('/lists/users/a@b.com/')
         self.assertEqual(response.context['owner'], correct_user)
+
+
+class ShareListTest(TestCase):
+
+    def setUp(self):
+        # Every test needs access to the request factory.
+        self.factory = RequestFactory()
+        self.user = User.objects.create(email='a@b.com')
+        self.shared_with_user = User.objects.create(email='b@b.com')
+
+    def test_post_redirect_to_list_page(self):
+        list_ = List.objects.create()
+        request = self.factory.post(f'/lists/{list_.id}/share', data={'email': self.shared_with_user.email})
+        request.user = self.user
+        response = share_list(request, list_.id)
+        self.assertRedirects(response, list_.get_absolute_url())
+
+    @unittest.skip('Dont run for the time being')
+    def test_post_add_user_to_shared_with(self):
+        user_a = User.objects.create(email='a@b.com')
+        user_b = User.objects.create(email='b@b.com')
+        test_list = List.objects.create(owner=user_a)
+        test_item = Item.objects.create(text='test text', list=test_list)
+        self.client.post(f'/lists/{test_list.id}/share', data={'email': 'b@b.com'})
+        self.assertIn(user_b, test_list.shared_with.all())
+
+    @unittest.skip('Dont run for the time being')
+    def test_post_empty_entry_raise_validation_error(self):
+        user_a = User.objects.create(email='a@b.com')
+        test_list = List.objects.create(owner=user_a)
+        with self.assertRaises(forms.ValidationError):
+            self.client.post(f'/lists/{test_list.id}/share', data={'email': ''})

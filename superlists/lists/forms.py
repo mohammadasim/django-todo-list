@@ -1,10 +1,13 @@
 from django import forms
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 
 from lists.models import Item, List
 
 EMPTY_ITEM_ERROR = 'You cannot have an empty list item'
 DUPLICATE_ITEM_ERROR = "You've already got this in your list"
+
+User = get_user_model()
 
 
 class ItemForm(forms.models.ModelForm):
@@ -72,3 +75,39 @@ class ExistingListItemForm(ItemForm):
 
     class Meta(ItemForm.Meta):
         pass
+
+
+class ListShareForm(forms.Form):
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super().__init__(*args, **kwargs)
+
+    shared_with_user = forms.EmailField(required=True, label='Share this list',
+                                        widget=forms.EmailInput(
+                                            attrs=
+                                            {
+                                                'placeholder': 'your-friend@example.com'
+                                            }
+                                        ))
+
+    def clean_shared_with_user(self):
+        print("clean_shared_with_user method is being called")
+        shared_with_user_email = self.cleaned_data['email']
+        shared_with_user = User.objects.get(email=shared_with_user_email)
+        if shared_with_user:
+            if shared_with_user == self:
+                raise forms.ValidationError(
+                    'User cannot share list with itself.'
+                )
+            return shared_with_user_email
+        raise forms.ValidationError(
+            f'User {shared_with_user_email} is not a registered user.'
+        )
+
+    def save(self, list_id):
+        print("save method called")
+        sharing_list = List.objects.get(id=list_id)
+        shared_with_user = User.objects.get(email=self.cleaned_data['email'])
+        sharing_list.shared_with.add(shared_with_user)
+        print(sharing_list.shared_with.all())
+        return sharing_list

@@ -9,7 +9,7 @@ class ListPage(object):
         self.test = test
 
     def get_table_rows(self):
-        return self.test.browser.find_element_by_css_selector('#id_list_table tr')
+        return self.test.browser.find_elements_by_css_selector('#id_list_table tr')
 
     @wait
     def wait_for_row_in_list_table(self, item_text, item_number):
@@ -21,9 +21,10 @@ class ListPage(object):
         return self.test.browser.find_element_by_id('id_text')
 
     def add_list_item(self, item_text):
-        new_item_no = len(self.get_table_rows()) + 1
         self.get_item_input_box().send_keys(item_text)
         self.get_item_input_box().send_keys(Keys.ENTER)
+        self.test.wait_for(lambda: self.test.browser.find_element_by_css_selector('#id_list_table tr'))
+        new_item_no = len(self.get_table_rows())
         self.wait_for_row_in_list_table(item_text, new_item_no)
         return self
 

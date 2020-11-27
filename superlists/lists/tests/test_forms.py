@@ -4,13 +4,16 @@ Module to test Item form class
 import unittest
 from unittest.mock import patch, Mock
 
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 
 from lists.forms import (EMPTY_ITEM_ERROR, DUPLICATE_ITEM_ERROR,
-                         ItemForm, ExistingListItemForm, NewListForm
-
+                         ItemForm, ExistingListItemForm, NewListForm,
+                         ListShareForm,
                          )
 from lists.models import List, Item
+
+User = get_user_model()
 
 
 class ItemFormTest(TestCase):
@@ -92,3 +95,31 @@ class NewListFormTest(unittest.TestCase):
         form.is_valid()
         response = form.save(owner=user)
         self.assertEqual(response, mock_list_create_new.return_value)
+
+
+class ListShareFormTest(unittest.TestCase):
+    def setUp(self):
+        self.test_user = User.objects.create(email='a@z.com')
+
+    def test_form_renders_email_input_item(self):
+        form = ListShareForm(self.test_user)
+        self.assertIn('type="email"', form.as_p())
+        self.assertIn('placeholder="your-friend@example.com"', form.as_p())
+
+    def test_form_validation_for_blank_email_field(self):
+        form = ListShareForm(self.test_user, data={'email': ''})
+        self.assertFalse(form.is_valid())
+
+    def test_form_validation_for_non_existing_user(self):
+        form = ListShareForm(self.test_user, data={'email': 'c@b.com'})
+        self.assertFalse(form.is_valid())
+
+    def test_form_validation_for_sharing_list_with_list_owner(self):
+        form = ListShareForm(self.test_user, data={'email': self.test_user.email})
+        self.assertFalse(form.is_valid())
+
+    def test_form_saves_valid_data(self):
+        shared_with_user = User.objects.create(email='test@email.com')
+        test_list = List.objects.create(owner=self.test_user)
+        form = ListShareForm(self.test_user, data={'email': shared_with_user.email})
+        self.assertTrue(form.is_valid())

@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import render, redirect
 
 from .forms import (ItemForm, ExistingListItemForm,
-                    NewListForm
+                    NewListForm, ListShareForm
                     )
 from .models import Item, List
 
@@ -66,3 +66,15 @@ def new_list(request):
         return redirect(str(list_.get_absolute_url()))
     else:
         return render(request, 'home.html', {'form': form})
+
+
+def share_list(request, list_id):
+    print(request.user)
+    list_share_form = ListShareForm(request.user, data=request.POST)
+    print(list_share_form.data)
+    if list_share_form.is_valid():
+        print('form is valid')
+        sharing_list = list_share_form.save(list_id)
+        return redirect(str(sharing_list.get_absolute_url()))
+    print('form is not valid')
+    return render(request, 'list.html', {'form': list_share_form})
