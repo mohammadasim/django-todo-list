@@ -8,7 +8,7 @@ from django.urls import reverse
 from django.utils.html import escape
 from unittest.mock import patch, Mock
 
-from lists.forms import ItemForm, EMPTY_ITEM_ERROR, ExistingListItemForm
+from lists.forms import ItemForm, EMPTY_ITEM_ERROR, ExistingListItemForm, ListShareForm
 from lists.models import Item, List
 from lists.views import new_list, share_list
 
@@ -280,20 +280,23 @@ class ShareListTest(TestCase):
         request = self.factory.post(f'/lists/{list_.id}/share', data={'email': self.shared_with_user.email})
         request.user = self.user
         response = share_list(request, list_.id)
-        self.assertRedirects(response, list_.get_absolute_url())
+        self.assertEqual(response.url, f'/lists/{list_.id}/')
+        self.assertEqual(response.status_code, 302)
 
-    @unittest.skip('Dont run for the time being')
     def test_post_add_user_to_shared_with(self):
-        user_a = User.objects.create(email='a@b.com')
-        user_b = User.objects.create(email='b@b.com')
-        test_list = List.objects.create(owner=user_a)
+        test_list = List.objects.create(owner=self.user)
         test_item = Item.objects.create(text='test text', list=test_list)
-        self.client.post(f'/lists/{test_list.id}/share', data={'email': 'b@b.com'})
-        self.assertIn(user_b, test_list.shared_with.all())
+        self.client.post(f'/lists/{test_list.id}/share', data={'email': self.shared_with_user.email})
+        self.assertIn(self.shared_with_user, test_list.shared_with.all())
 
-    @unittest.skip('Dont run for the time being')
-    def test_post_empty_entry_raise_validation_error(self):
-        user_a = User.objects.create(email='a@b.com')
-        test_list = List.objects.create(owner=user_a)
-        with self.assertRaises(forms.ValidationError):
-            self.client.post(f'/lists/{test_list.id}/share', data={'email': ''})
+    def test_post_empty_entry_raise_returns_list_page(self):
+        test_list = List.objects.create(owner=self.user)
+        response = self.client.post(f'/lists/{test_list.id}/share', data={'email': ''})
+        self.assertTemplateUsed(response, 'list.html')
+
+    def test_post_empty_entry_response_contains_list_share_form(self):
+        test_list = List.objects.create(owner=self.user)
+        response = self.client.post(f'/lists/{test_list.id}/share', data={'email': ''})
+        self.assertIsInstance(response.context['form'], ListShareForm)
+
+

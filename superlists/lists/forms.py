@@ -82,20 +82,19 @@ class ListShareForm(forms.Form):
         self.user = user
         super().__init__(*args, **kwargs)
 
-    shared_with_user = forms.EmailField(required=True, label='Share this list',
-                                        widget=forms.EmailInput(
-                                            attrs=
-                                            {
-                                                'placeholder': 'your-friend@example.com'
-                                            }
-                                        ))
+    email = forms.EmailField(required=True, label='Share this list',
+                             widget=forms.EmailInput(
+                                 attrs=
+                                 {
+                                     'placeholder': 'your-friend@example.com'
+                                 }
+                             ))
 
-    def clean_shared_with_user(self):
-        print("clean_shared_with_user method is being called")
+    def clean_email(self):
         shared_with_user_email = self.cleaned_data['email']
-        shared_with_user = User.objects.get(email=shared_with_user_email)
-        if shared_with_user:
-            if shared_with_user == self:
+        shared_with_user = User.objects.filter(email=shared_with_user_email)
+        if shared_with_user.exists():
+            if shared_with_user[0] == self.user:
                 raise forms.ValidationError(
                     'User cannot share list with itself.'
                 )
@@ -105,9 +104,7 @@ class ListShareForm(forms.Form):
         )
 
     def save(self, list_id):
-        print("save method called")
         sharing_list = List.objects.get(id=list_id)
         shared_with_user = User.objects.get(email=self.cleaned_data['email'])
         sharing_list.shared_with.add(shared_with_user)
-        print(sharing_list.shared_with.all())
         return sharing_list

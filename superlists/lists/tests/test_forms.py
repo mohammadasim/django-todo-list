@@ -99,7 +99,7 @@ class NewListFormTest(unittest.TestCase):
 
 class ListShareFormTest(unittest.TestCase):
     def setUp(self):
-        self.test_user = User.objects.create(email='a@z.com')
+        self.test_user = User.objects.get_or_create(email='a@z.com')[0]
 
     def test_form_renders_email_input_item(self):
         form = ListShareForm(self.test_user)
@@ -118,8 +118,17 @@ class ListShareFormTest(unittest.TestCase):
         form = ListShareForm(self.test_user, data={'email': self.test_user.email})
         self.assertFalse(form.is_valid())
 
-    def test_form_saves_valid_data(self):
+    def test_form_is_valid_when_both_users_exist(self):
         shared_with_user = User.objects.create(email='test@email.com')
         test_list = List.objects.create(owner=self.test_user)
         form = ListShareForm(self.test_user, data={'email': shared_with_user.email})
         self.assertTrue(form.is_valid())
+
+    def test_form_saves_valid_data(self):
+        test_share_user = User.objects.create(email='a@v.com')
+        test_list = List.objects.create(owner=self.test_user)
+        form = ListShareForm(self.test_user, data={'email': test_share_user.email})
+        form.is_valid()
+        form.save(test_list.id)
+        retrieved_share_user = test_list.shared_with.all()[0]
+        self.assertEqual(retrieved_share_user.email, test_share_user.email)
