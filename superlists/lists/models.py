@@ -1,6 +1,9 @@
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.urls import reverse
+
+User = get_user_model()
 
 
 class List(models.Model):
@@ -28,6 +31,10 @@ class List(models.Model):
             list_ = cls.objects.create()
         Item.objects.create(text=kwargs.get('first_item_text'), list=list_)
         return list_
+
+    def add_shared_with(self, email):
+        user_to_add = User.objects.get(email=email)
+        self.shared_with.add(user_to_add)
 
 
 class Item(models.Model):

@@ -9,3 +9,12 @@
     {% endfor %}
 </ul>
 {% endblock %}
+{% block share %}
+<h2>Lists shared with you</h2>
+<ul class="list-sharee">
+    {% for list in owner.list_shared.all %}
+    <li><a href="{{ list.get_absolute_url }}">{{ list.name }}</a> <strong>List owner:{{list.owner.email}}</strong></li>
+    {% endfor %}
+</ul>
+
+{% endblock share %}

@@ -277,7 +277,7 @@ class ShareListTest(TestCase):
 
     def test_post_redirect_to_list_page(self):
         list_ = List.objects.create()
-        request = self.factory.post(f'/lists/{list_.id}/share', data={'email': self.shared_with_user.email})
+        request = self.factory.post(f'/lists/{list_.id}/share', data={'sharee': self.shared_with_user.email})
         request.user = self.user
         response = share_list(request, list_.id)
         self.assertEqual(response.url, f'/lists/{list_.id}/')
@@ -286,17 +286,17 @@ class ShareListTest(TestCase):
     def test_post_add_user_to_shared_with(self):
         test_list = List.objects.create(owner=self.user)
         test_item = Item.objects.create(text='test text', list=test_list)
-        self.client.post(f'/lists/{test_list.id}/share', data={'email': self.shared_with_user.email})
+        self.client.post(f'/lists/{test_list.id}/share', data={'sharee': self.shared_with_user.email})
         self.assertIn(self.shared_with_user, test_list.shared_with.all())
 
     def test_post_empty_entry_raise_returns_list_page(self):
         test_list = List.objects.create(owner=self.user)
-        response = self.client.post(f'/lists/{test_list.id}/share', data={'email': ''})
+        response = self.client.post(f'/lists/{test_list.id}/share', data={'sharee': ''})
         self.assertTemplateUsed(response, 'list.html')
 
     def test_post_empty_entry_response_contains_list_share_form(self):
         test_list = List.objects.create(owner=self.user)
-        response = self.client.post(f'/lists/{test_list.id}/share', data={'email': ''})
-        self.assertIsInstance(response.context['form'], ListShareForm)
+        response = self.client.post(f'/lists/{test_list.id}/share', data={'sharee': ''})
+        self.assertIsInstance(response.context['list_share_form'], ListShareForm)
 
 

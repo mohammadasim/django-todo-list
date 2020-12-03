@@ -107,27 +107,27 @@ class ListShareFormTest(unittest.TestCase):
         self.assertIn('placeholder="your-friend@example.com"', form.as_p())
 
     def test_form_validation_for_blank_email_field(self):
-        form = ListShareForm(self.test_user, data={'email': ''})
+        form = ListShareForm(self.test_user, data={'sharee': ''})
         self.assertFalse(form.is_valid())
 
     def test_form_validation_for_non_existing_user(self):
-        form = ListShareForm(self.test_user, data={'email': 'c@b.com'})
+        form = ListShareForm(self.test_user, data={'sharee': 'c@b.com'})
         self.assertFalse(form.is_valid())
 
     def test_form_validation_for_sharing_list_with_list_owner(self):
-        form = ListShareForm(self.test_user, data={'email': self.test_user.email})
+        form = ListShareForm(self.test_user, data={'sharee': self.test_user.email})
         self.assertFalse(form.is_valid())
 
     def test_form_is_valid_when_both_users_exist(self):
         shared_with_user = User.objects.create(email='test@email.com')
         test_list = List.objects.create(owner=self.test_user)
-        form = ListShareForm(self.test_user, data={'email': shared_with_user.email})
+        form = ListShareForm(self.test_user, data={'sharee': shared_with_user.email})
         self.assertTrue(form.is_valid())
 
     def test_form_saves_valid_data(self):
         test_share_user = User.objects.create(email='a@v.com')
         test_list = List.objects.create(owner=self.test_user)
-        form = ListShareForm(self.test_user, data={'email': test_share_user.email})
+        form = ListShareForm(self.test_user, data={'sharee': test_share_user.email})
         form.is_valid()
         form.save(test_list.id)
         retrieved_share_user = test_list.shared_with.all()[0]

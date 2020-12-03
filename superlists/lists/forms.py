@@ -82,16 +82,16 @@ class ListShareForm(forms.Form):
         self.user = user
         super().__init__(*args, **kwargs)
 
-    email = forms.EmailField(required=True, label='Share this list',
-                             widget=forms.EmailInput(
-                                 attrs=
-                                 {
-                                     'placeholder': 'your-friend@example.com'
-                                 }
-                             ))
+    sharee = forms.EmailField(required=True, label='Share this list',
+                              widget=forms.EmailInput(
+                                  attrs=
+                                  {
+                                      'placeholder': 'your-friend@example.com'
+                                  }
+                              ))
 
-    def clean_email(self):
-        shared_with_user_email = self.cleaned_data['email']
+    def clean_sharee(self):
+        shared_with_user_email = self.cleaned_data['sharee']
         shared_with_user = User.objects.filter(email=shared_with_user_email)
         if shared_with_user.exists():
             if shared_with_user[0] == self.user:
@@ -105,6 +105,5 @@ class ListShareForm(forms.Form):
 
     def save(self, list_id):
         sharing_list = List.objects.get(id=list_id)
-        shared_with_user = User.objects.get(email=self.cleaned_data['email'])
-        sharing_list.shared_with.add(shared_with_user)
+        sharing_list.add_shared_with(email=self.cleaned_data['sharee'])
         return sharing_list

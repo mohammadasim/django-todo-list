@@ -29,6 +29,7 @@ def view_list(request, list_id):
     """
     list_ = List.objects.get(id=list_id)
     form = ExistingListItemForm(for_list=list_)
+    list_share_form = ListShareForm(request.user)
     if request.method == 'POST':
         form = ExistingListItemForm(for_list=list_, data=request.POST)
         if form.is_valid():
@@ -38,7 +39,8 @@ def view_list(request, list_id):
             context = {
                 'items': Item.objects.filter(list=list_),
                 'form': form,
-                'list': list_
+                'list': list_,
+                'list_share_form': list_share_form
             }
             return render(request, 'list.html', context)
     if request.method == 'GET':
@@ -46,7 +48,8 @@ def view_list(request, list_id):
         context = {
             'items': items,
             'list': list_,
-            'form': form
+            'form': form,
+            'list_share_form': list_share_form
         }
         return render(request, 'list.html', context)
 
@@ -73,4 +76,4 @@ def share_list(request, list_id):
     if list_share_form.is_valid():
         sharing_list = list_share_form.save(list_id)
         return redirect(str(sharing_list.get_absolute_url()))
-    return render(request, 'list.html', {'form': list_share_form})
+    return render(request, 'list.html', {'list_share_form': list_share_form})

@@ -1,8 +1,10 @@
 {% extends 'base.html' %}
+{% load crispy_forms_tags %}
 {% block header_text %}Your To-Do list{% endblock header_text %}
 {% block form_action %}{{ list.get_absolute_url }}{% endblock form_action %}
 
 {% block table %}
+<h5 id="id_list_owner">{{ list.owner.email }}</h5>
 <table id="id_list_table" class="table">
     {% for item in items %}
     <tr>
@@ -14,7 +16,7 @@
 {% endblock table %}
 {% block share %}
 <form method="post" action="/lists/{{ list.id }}/share">
-    <label>Share this list</label>
-    <input type="email" placeholder="your-friend@example.com" name="sharee">
+    {{ list_share_form|crispy }}
+    {% csrf_token %}
 </form>
 {% endblock share %}
