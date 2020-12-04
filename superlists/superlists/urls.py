@@ -18,11 +18,12 @@ from django.urls import path, include
 from lists import views as list_views
 from lists import urls as list_urls
 from accounts import urls as accounts_urls
+from lists.views import HopePageView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     # lists
-    path('', list_views.home_page, name='home'),
+    path('', HopePageView.as_view(), name='home'),
     path('lists/', include(list_urls)),
     # accounts
     path('accounts/', include(accounts_urls)),

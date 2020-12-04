@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import render, redirect
+from django.views.generic import FormView
 
 from .forms import (ItemForm, ExistingListItemForm,
                     NewListForm, ListShareForm
@@ -9,14 +10,9 @@ from .models import Item, List
 User = get_user_model()
 
 
-def home_page(request):
-    """
-    Function based view for
-    home page.
-    :param request:
-    :return:
-    """
-    return render(request, 'home.html', {'form': ItemForm()})
+class HopePageView(FormView):
+    template_name = 'home.html'
+    form_class = ItemForm
 
 
 def view_list(request, list_id):

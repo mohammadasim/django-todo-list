@@ -1,7 +1,6 @@
 from django.conf.urls import url
 from django.urls import path
 from .views import (
-    home_page,
     view_list,
     new_list,
     my_lists,
