@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import render, redirect
 from django.views.generic import FormView
+from django.views.generic import CreateView
 
 from .forms import (ItemForm, ExistingListItemForm,
                     NewListForm, ListShareForm
@@ -58,13 +59,13 @@ def my_lists(request, email):
     return render(request, 'my_lists.html', context)
 
 
-def new_list(request):
-    form = NewListForm(data=request.POST)
-    if form.is_valid():
-        list_ = form.save(owner=request.user)
+class NewListView(CreateView):
+    template_name = 'home.html'
+    form_class = NewListForm
+
+    def form_valid(self, form):
+        list_ = form.save(owner=self.request.user)
         return redirect(str(list_.get_absolute_url()))
-    else:
-        return render(request, 'home.html', {'form': form})
 
 
 def share_list(request, list_id):
